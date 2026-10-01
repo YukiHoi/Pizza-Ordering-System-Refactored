@@ -1,0 +1,58 @@
+name: SonarQube
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out project
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9
+        with:
+          java-version: '21'
+          distribution: zulu
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Install Sonar scanner
+        shell: powershell
+        run: |
+          dotnet tool install dotnet-sonarscanner --tool-path "$env:RUNNER_TEMP\scanner"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build and analyze
+        shell: powershell
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if (-not $env:SONAR_TOKEN) {
+            throw "Add the SONAR_TOKEN repository secret before running analysis."
+          }
+
+          $scanner = "$env:RUNNER_TEMP\scanner\dotnet-sonarscanner.exe"
+
+          & $scanner begin /k:"YukiHoi_Pizza-Ordering-System-Refactored" /o:"yukihoi" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.token="$env:SONAR_TOKEN"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          msbuild FoodDeliverySYS.sln /restore /t:Rebuild /p:RestorePackagesConfig=true /p:Configuration=Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          & $scanner end /d:sonar.token="$env:SONAR_TOKEN"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
