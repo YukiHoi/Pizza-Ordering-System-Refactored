@@ -1,0 +1,401 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EB6561CC-D80F-4AB7-A1BA-580D3B31AB0B}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>FoodDeliverySYS</RootNamespace>
+    <AssemblyName>FoodDeliverySYS</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Bunifu.Licensing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=f89b4760ba7dcb6b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Bunifu.Licensing.6.0.4\lib\net472\Bunifu.Licensing.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess, Version=4.122.23.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <HintPath>..\packages\Oracle.ManagedDataAccess.23.7.0\lib\net472\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp, Version=110.2.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.110.2.0\lib\net471\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.CodeDom, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.CodeDom.8.0.0\lib\net462\System.CodeDom.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=6.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.6.0.1\lib\net461\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.Formats.Asn1, Version=8.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Formats.Asn1.8.0.1\lib\net462\System.Formats.Asn1.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Management" />
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encodings.Web, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encodings.Web.8.0.0\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=8.0.0.5, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.8.0.5\lib\net462\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Category.cs" />
+    <Compile Include="CrustType.cs" />
+    <Compile Include="Customer.cs" />
+    <Compile Include="CustomerOrders.cs" />
+    <Compile Include="Delivery.cs" />
+    <Compile Include="DBConnect.cs" />
+    <Compile Include="frmCloseDelivery.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCloseDelivery.Designer.cs">
+      <DependentUpon>frmCloseDelivery.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmCustomerMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCustomerMain.Designer.cs">
+      <DependentUpon>frmCustomerMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmDeRegisterCustomer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDeRegisterCustomer.Designer.cs">
+      <DependentUpon>frmDeRegisterCustomer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmDispatchOrder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDispatchOrder.Designer.cs">
+      <DependentUpon>frmDispatchOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMain.Designer.cs">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmPayment.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmPayment.Designer.cs">
+      <DependentUpon>frmPayment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmPlaceOrder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmPlaceOrder.Designer.cs">
+      <DependentUpon>frmPlaceOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmRegisterCustomer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRegisterCustomer.Designer.cs">
+      <DependentUpon>frmRegisterCustomer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmRemovePizza.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRemovePizza.Designer.cs">
+      <DependentUpon>frmRemovePizza.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmCustomerSignIn.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCustomerSignIn.Designer.cs">
+      <DependentUpon>frmCustomerSignIn.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmStaffMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmStaffMain.Designer.cs">
+      <DependentUpon>frmStaffMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmStaffSignIn.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmStaffSignIn.Designer.cs">
+      <DependentUpon>frmStaffSignIn.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmStaffViewMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmStaffViewMenu.Designer.cs">
+      <DependentUpon>frmStaffViewMenu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmUpdateCustomer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmUpdateCustomer.Designer.cs">
+      <DependentUpon>frmUpdateCustomer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmViewAllOrders.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmViewAllOrders.Designer.cs">
+      <DependentUpon>frmViewAllOrders.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmViewMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmViewMenu.Designer.cs">
+      <DependentUpon>frmViewMenu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmViewMyOrders.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmViewMyOrders.Designer.cs">
+      <DependentUpon>frmViewMyOrders.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmYearlyRevenueAnalysisReport.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmYearlyRevenueAnalysisReport.Designer.cs">
+      <DependentUpon>frmYearlyRevenueAnalysisReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmAddNewPizzaToMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmAddNewPizzaToMenu.Designer.cs">
+      <DependentUpon>frmAddNewPizzaToMenu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OrderDetails.cs" />
+    <Compile Include="Payment.cs" />
+    <Compile Include="PaymentMethod.cs" />
+    <Compile Include="Pizza.cs" />
+    <Compile Include="PizzaCart.cs" />
+    <Compile Include="PizzaSize.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Staff.cs" />
+    <EmbeddedResource Include="frmCloseDelivery.resx">
+      <DependentUpon>frmCloseDelivery.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmCustomerMain.resx">
+      <DependentUpon>frmCustomerMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmDeRegisterCustomer.resx">
+      <DependentUpon>frmDeRegisterCustomer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmDispatchOrder.resx">
+      <DependentUpon>frmDispatchOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmMain.resx">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmPayment.resx">
+      <DependentUpon>frmPayment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmPlaceOrder.resx">
+      <DependentUpon>frmPlaceOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmRegisterCustomer.resx">
+      <DependentUpon>frmRegisterCustomer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmRemovePizza.resx">
+      <DependentUpon>frmRemovePizza.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmCustomerSignIn.resx">
+      <DependentUpon>frmCustomerSignIn.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmStaffMain.resx">
+      <DependentUpon>frmStaffMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmStaffSignIn.resx">
+      <DependentUpon>frmStaffSignIn.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmStaffViewMenu.resx">
+      <DependentUpon>frmStaffViewMenu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmUpdateCustomer.resx">
+      <DependentUpon>frmUpdateCustomer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmViewAllOrders.resx">
+      <DependentUpon>frmViewAllOrders.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmViewMenu.resx">
+      <DependentUpon>frmViewMenu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmViewMyOrders.resx">
+      <DependentUpon>frmViewMyOrders.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmYearlyRevenueAnalysisReport.resx">
+      <DependentUpon>frmYearlyRevenueAnalysisReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmAddNewPizzaToMenu.resx">
+      <DependentUpon>frmAddNewPizzaToMenu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Oracle.ManagedDataAccess.Client.Configuration.Section.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\images.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\images %281%29.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pngtree-pepperoni-pizza-isolated-with-clipping-path-png-image_13007910.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pepperoni.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\anchor.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mozzarella.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pesto.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\new york.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bbq chicken.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\main.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\main1.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mozzarella1.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pepperoni1.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\background.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\signIn_img.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\signIn_img %282%29.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\staff.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\staffMain.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\staffMain1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pexels-kue-lee-349967-1093015.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pexels-christina-petsos-200616875-11568775.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pexels-nano-erdozain-120534369-29021745.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pexels-koolshooters-7142953.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pexels-cottonbro-3944308.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\background1.jpg" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

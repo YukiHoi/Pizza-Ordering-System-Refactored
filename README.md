@@ -17,7 +17,8 @@ A C# Windows Forms application for ordering pizzas, selecting crust and size opt
 ## How to Run
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yukiHoi/Pizza-Delivery.git
-2. Open the solution file (.sln) in Visual Studio.
+   git clone https://github.com/yukiHoi/Pizza-Ordering-System-Refactored.git
+   ```
+2. Open `FoodDeliverySYS.sln` at the repository root in Visual Studio or Rider and restore NuGet packages.
 3. Build the project (Ctrl + Shift + B).
 4. Run the application (F5).
