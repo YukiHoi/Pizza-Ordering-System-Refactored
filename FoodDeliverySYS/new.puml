@@ -1,0 +1,36 @@
+﻿@startuml
+'https://plantuml.com/class-diagram
+
+title Draft UML class diagram
+
+class frmPayment {
+    + SubmitOrder() : void
+}
+
+class OrderFacade {
+    + PlaceOrder(request : OrderRequest) : OrderResult
+}
+
+class OrderValidator {
+    + Validate(request : OrderRequest) : void
+}
+
+class PricingStrategyFactory {
+    + Create(option : PricingOption) : IPricingStrategy
+}
+
+class PriceCalculator {
+    + PriceCalculator(strategy : IPricingStrategy)
+    + Calculate(input : PricingInput) : decimal
+}
+
+interface IOrderStore {
+    + SaveOrderWithPayment(order : OrderData) : int
+}
+
+frmPayment ..> OrderFacade : calls
+OrderFacade ..> OrderValidator
+OrderFacade ..> PricingStrategyFactory
+OrderFacade ..> PriceCalculator
+OrderFacade ..> IOrderStore
+@enduml

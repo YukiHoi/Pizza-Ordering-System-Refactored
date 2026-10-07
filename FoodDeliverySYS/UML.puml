@@ -1,0 +1,96 @@
+﻿@startuml
+'https://plantuml.com/class-diagram
+
+title Pizza Ordering System - Place Order (Before Refactoring)
+
+class frmPlaceOrder {
+    - cart : List<PizzaCart>
+    - currentCustomerId : int
+    - currentOrderID : int
+    - currentOrderDetailId : int
+    - totalPrice : decimal
+    - pizza_id : int
+    - crust_id : int
+    - size_id : int
+    - qty : int
+
+    - theOrderDetails : OrderDetails
+    - thePizza : Pizza
+    - thePizzaSize : PizzaSize
+    - theCrustType : CrustType
+
+    + frmPlaceOrder(currentCustomerId : int)
+    - btnAdd_Click()
+    - frmPlaceOrder_Load()
+    - btnCheckOut_Click()
+}
+
+class Pizza {
+    + getAllPizza()
+}
+
+class CrustType {
+    - crust_id : int
+    - crust_type : string
+    - crust_price : decimal
+
+    + getAllCrustType()
+}
+
+class PizzaSize {
+    - size_id : int
+    - pizza_size : string
+    - size_price : decimal
+
+    + getAllPizzaSize()
+}
+
+class PizzaCart {
+    + PizzaId : int
+    + CrustId : int
+    + SizeId : int
+    + Quantity : int
+    + Price : decimal
+}
+
+class OrderDetails {
+    - order_detail_id : int
+    - order_id : int
+    - pizza_id : int
+    - crust_id : int
+    - size_id : int
+    - quantity : int
+    - line_total_price : decimal
+    - currentOrderId : int
+    - currentCustomerId : int
+    - orderId : int
+    - totalPrice : decimal
+
+    + getOrder_detail_id() : int
+    + getOrder_id() : int
+    + getPizza_id() : int
+    + getCrust_id() : int
+    + getSize_id() : int
+    + getQuantity() : int
+    + getLine_total_price() : decimal
+
+    + addOrderDetails()
+    + getNextOrderDetailId() : int
+    + getOrderDetailIdByCustomerId(currentCustomer_id : string) : int
+}
+
+class CustomerOrders {
+    + getOrderIdByCustomerId(customerId : string) : int
+}
+
+class frmPayment
+
+frmPlaceOrder --> Pizza
+frmPlaceOrder --> CrustType
+frmPlaceOrder --> PizzaSize
+frmPlaceOrder --> PizzaCart
+frmPlaceOrder --> OrderDetails
+frmPlaceOrder --> CustomerOrders
+frmPlaceOrder --> frmPayment
+
+@enduml

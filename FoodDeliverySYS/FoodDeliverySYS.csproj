@@ -397,5 +397,9 @@
   <ItemGroup>
     <None Include="Resources\background1.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="new.puml" />
+    <Content Include="UML.puml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
