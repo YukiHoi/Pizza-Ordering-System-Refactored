@@ -1,0 +1,30 @@
+﻿name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore packages
+        run: nuget restore FoodDeliverySYS.sln
+
+      - name: Build solution
+        run: msbuild FoodDeliverySYS.sln /p:Configuration=Release
+
+      - name: Run NUnit tests
+        run: dotnet test FoodDeliverySYS.Tests/FoodDeliverySYS.Tests.csproj --configuration Release --no-build

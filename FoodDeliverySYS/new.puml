@@ -3,34 +3,29 @@
 
 title Draft UML class diagram
 
-class frmPayment {
-    + SubmitOrder() : void
+class frmPlaceOrder {
+    - cart : List<PizzaCart>
+    + AddToCart() : void
+    + Checkout() : void
 }
 
-class OrderFacade {
-    + PlaceOrder(request : OrderRequest) : OrderResult
+class PizzaCartBuilder {
+    + WithPizza(id : int) : PizzaCartBuilder
+    + WithSize(id : int) : PizzaCartBuilder
+    + WithCrust(id : int) : PizzaCartBuilder
+    + WithQuantity(value : int) : PizzaCartBuilder
+    + Build() : PizzaCart
 }
 
-class OrderValidator {
-    + Validate(request : OrderRequest) : void
+class PizzaCart {
+    + PizzaId : int
+    + CrustId : int
+    + SizeId : int
+    + Quantity : int
+    + Price : decimal
 }
 
-class PricingStrategyFactory {
-    + Create(option : PricingOption) : IPricingStrategy
-}
-
-class PriceCalculator {
-    + PriceCalculator(strategy : IPricingStrategy)
-    + Calculate(input : PricingInput) : decimal
-}
-
-interface IOrderStore {
-    + SaveOrderWithPayment(order : OrderData) : int
-}
-
-frmPayment ..> OrderFacade : calls
-OrderFacade ..> OrderValidator
-OrderFacade ..> PricingStrategyFactory
-OrderFacade ..> PriceCalculator
-OrderFacade ..> IOrderStore
+frmPlaceOrder ..> PizzaCartBuilder : uses
+PizzaCartBuilder ..> PizzaCart : creates
+frmPlaceOrder "1" --> "0..*" PizzaCart : holds cart items
 @enduml
