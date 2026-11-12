@@ -1,0 +1,40 @@
+﻿@startuml
+title Pizza Ordering System - N-Tier Architecture after refactoring
+
+package "Presentation Layer" as Presentation {
+    class frmPlaceOrder
+    class frmPayment
+    class frmDelivery
+}
+
+package "Business / Application Layer" as Business {
+    class PizzaCartBuilder
+    class OrderFacade
+    class PriceCalculator
+    class OrderState
+}
+
+package "Data Access Layer" as DataAccess {
+    class OrderRepository
+    class PizzaRepository
+    class PaymentRepository
+    class DeliveryRepository
+}
+
+database "Oracle Database" as Database {
+    class Pizza
+    class PizzaSize
+    class CrustType
+    class CustomerOrder
+    class OrderDetails
+    class Payment
+    class PaymentMethod
+    class Delivery
+    class Customer
+    class Staff
+}
+
+Presentation --> Business
+Business --> DataAccess
+DataAccess --> Database
+@enduml

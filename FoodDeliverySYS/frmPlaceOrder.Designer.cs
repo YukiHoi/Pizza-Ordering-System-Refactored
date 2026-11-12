@@ -306,6 +306,7 @@
             this.dgvCartList.Name = "dgvCartList";
             this.dgvCartList.Size = new System.Drawing.Size(687, 150);
             this.dgvCartList.TabIndex = 80;
+            this.dgvCartList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvCartList_CellContentClick);
             // 
             // label2
             // 

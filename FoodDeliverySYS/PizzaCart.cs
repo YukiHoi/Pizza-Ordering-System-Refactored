@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FoodDeliverySYS
 {
-    internal class PizzaCart
+    public class PizzaCart
     {
         public int PizzaId { get; set; }
         public int CrustId { get; set; }

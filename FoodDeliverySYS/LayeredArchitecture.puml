@@ -1,0 +1,36 @@
+﻿﻿@startuml
+title Pizza Ordering System Proposed Layered Architecture
+
+top to bottom direction
+skinparam packageStyle rectangle
+
+package "Presentation Layer" as Presentation {
+    class frmPlaceOrder
+    class frmPayment
+    class frmDispatchOrder
+    class frmCloseDelivery
+}
+
+package "Business Layer" as Business {
+    class PizzaCartBuilder
+    class PriceCalculator
+    class OrderFacade
+    interface IPaymentStrategy
+    interface IOrderState
+}
+
+allowmixing
+
+package "Data Access Layer" as DataAccess {
+    class OracleMenuReader
+    class OracleOrderStore
+    class OracleDeliveryStore
+}
+
+database "Oracle Database" as DB
+
+Presentation --> Business : calls
+Business --> DataAccess : through interfaces
+DataAccess --> DB : loads and saves 
+
+@enduml

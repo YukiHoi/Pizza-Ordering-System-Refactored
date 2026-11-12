@@ -100,10 +100,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Business\IOrderStore.cs" />
+    <Compile Include="Business\OrderFacade.cs" />
+    <Compile Include="Business\PizzaCartBuilder.cs" />
     <Compile Include="Category.cs" />
     <Compile Include="CrustType.cs" />
     <Compile Include="Customer.cs" />
     <Compile Include="CustomerOrders.cs" />
+    <Compile Include="DataAccess\OracleOrderStore.cs" />
     <Compile Include="Delivery.cs" />
     <Compile Include="DBConnect.cs" />
     <Compile Include="frmCloseDelivery.cs">
@@ -224,6 +228,7 @@
     <Compile Include="Payment.cs" />
     <Compile Include="PaymentMethod.cs" />
     <Compile Include="Pizza.cs" />
+    <Compile Include="Business\PriceCalculator.cs" />
     <Compile Include="PizzaCart.cs" />
     <Compile Include="PizzaSize.cs" />
     <Compile Include="Program.cs" />
@@ -398,7 +403,11 @@
     <None Include="Resources\background1.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="LayeredArchitecture.puml" />
     <Content Include="new.puml" />
+    <Content Include="NTierArchitecture.puml">
+      <DependentUpon>LayeredArchitecture.puml</DependentUpon>
+    </Content>
     <Content Include="UML.puml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,4 +1,5 @@
-﻿using System;
+using FoodDeliverySYS.Business;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FoodDeliverySYS.Models;
+using System.Management;
 
 namespace FoodDeliverySYS
 {
@@ -32,6 +34,11 @@ namespace FoodDeliverySYS
         public frmPlaceOrder(int currentCustomerId)
         {
             InitializeComponent();
+            dgvCartList.AutoGenerateColumns = true;
+            dgvCartList.ReadOnly = true;
+            dgvCartList.AllowUserToAddRows = false;
+            dgvCartList.AllowUserToDeleteRows = false;
+            txtGrandTotal.ReadOnly = true;
             this.currentCustomerId = currentCustomerId;
         }
 
@@ -57,67 +64,93 @@ namespace FoodDeliverySYS
         }
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            if (numQty.Value > 10)
+            //// Read the ID and price from each displayed option.
+            // Split on the full separator so names can contain hyphens.
+            string[] pizzaParts = cboPizzas.SelectedItem.ToString()
+                .Split(new[] { " - " }, StringSplitOptions.None); //get the selected pizza from the combobox //https://stackoverflow.com/questions/6844724/how-can-i-convert-an-object-from-a-combobox-selected-item-to-a-string 
+            //split the string by '-' //https://www.bytehide.com/blog/split-string-csharp
+            string[] crustParts = cboCrustType.SelectedItem.ToString()    
+                .Split(new []{ " - " }, StringSplitOptions.None);
+            string[] sizeParts = cboPizzaSize.SelectedItem.ToString()    
+                .Split(new []{ " - " }, StringSplitOptions.None);
+
+            try
             {
-                MessageBox.Show("Sorry, you can only order up to 10 of the same pizza.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            
-            string pizzaString = cboPizzas.SelectedItem.ToString(); //get the selected pizza from the combobox //https://stackoverflow.com/questions/6844724/how-can-i-convert-an-object-from-a-combobox-selected-item-to-a-string 
-            string[] parts = pizzaString.Split('-'); //split the string by '-' //https://www.bytehide.com/blog/split-string-csharp
-            decimal pizzaPrice = decimal.Parse(parts[2]); //get the price of the pizza
+                // Builder creates and validates one pizza item.
+                PizzaCart item = new PizzaCartBuilder()
+                    .WithPizzaId(int.Parse(pizzaParts[0]))
+                    .WithCrustId(int.Parse(crustParts[0]))
+                    .WithSizeId(int.Parse(sizeParts[0]))
+                    .WithQuantity(Convert.ToInt32(numQty.Value))
+                    .Build();
+                // Pricing remains separate from item creation.
+                item.Price = PriceCalculator.CalculatePrice(
+                    decimal.Parse(pizzaParts[pizzaParts.Length - 1]),
+                    decimal.Parse(crustParts[crustParts.Length - 1]),
+                    decimal.Parse(sizeParts[sizeParts.Length - 1]),
+                    item.Quantity);
+                
+                // Keep the existing checkout parameters for this step.
+                pizza_id = item.PizzaId;
+                crust_id = item.CrustId;
+                size_id = item.SizeId;
+                qty = item.Quantity;
+                totalPrice = item.Price;
+                cart.Add(item);
 
-            string crustString = cboCrustType.SelectedItem.ToString(); //get the selected crust from the combobox
-            string[] parts1 = crustString.Split('-'); //split the string by '-'
-            decimal crustPrice = decimal.Parse(parts1[2]); //get the price of the crust
-
-            string sizeString = cboPizzaSize.SelectedItem.ToString(); //get the selected size from the combobox
-            string[] parts2 = sizeString.Split('-'); //split the string by '-'
-            decimal sizePrice = decimal.Parse(parts2[2]); //get the price of the size
-
-            this.totalPrice = (pizzaPrice + crustPrice + sizePrice) * numQty.Value; //calculate the total price
-            this.crust_id = Convert.ToInt32(cboCrustType.Text.Substring(0,2)); //get the crust id from the combobox
-            this.size_id = Convert.ToInt32(cboPizzaSize.Text.Substring(0,2)); //get the pizza size id from the combobox
-            this.pizza_id = Convert.ToInt32(cboPizzas.Text.Substring(0,2)); //get the pizza id from the combobox         
-            this.qty = Convert.ToInt32(numQty.Value); //get the quantity from the numeric updown control
-         
-            /*for(int i = 0; i < cart.Count; i++) //check the item already exist in the cart
-            {
-                PizzaCart item = cart[i];//get the item from the cart
-                if (item.PizzaId == pizza_id && item.CrustId == crust_id && item.SizeId == size_id)
+                //Refresh the grid after adding an item and display pizza
+                dgvCartList.DataSource = null;
+                dgvCartList.DataSource = cart.Select(cartItem => new
                 {
-                    if (item.Quantity == 0)
-                    {
-                        MessageBox.Show("Please select a quantity", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                    if (item.Quantity + qty > 10)
-                    {
-                        MessageBox.Show("Sorry, you can only order up to 10 of the same pizza.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                 
-                    item.Quantity += qty; //if the item already exists in the cart, increase the quantity
-                    item.Price += totalPrice; //increase the price
-                    MessageBox.Show("Item added to the cart successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
-                }
-                item.Quantity = qty; //if the item does not exist in the cart, add it to the cart
-                item.Price = totalPrice; //set the price
-            }*/
-            txtTotal.Visible = true;
-            btnCheckOut.Visible = true;
-            txtTotal.Text = totalPrice.ToString("0.00"); //display the total price in the textbox
+                    Pizza = GetOptionName(cboPizzas, cartItem.PizzaId),
+                    Crust = GetOptionName(cboCrustType, cartItem.CrustId),
+                    Size = GetOptionName(cboPizzaSize, cartItem.SizeId),
+                    Quantity = cartItem.Quantity,
+                    LineTotal = cartItem.Price
+                }).ToList();
 
-            //MessageBox.Show("Item added to the cart successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            decimal totalPrice1 = decimal.Parse(txtTotal.Text); //get the total price from the textbox
+                dgvCartList.Columns["LineTotal"].HeaderText = "Line Total";
+                dgvCartList.Columns["LineTotal"].DefaultCellStyle.Format = "C2";
+                dgvCartList.AutoSizeColumnsMode =
+                    DataGridViewAutoSizeColumnsMode.Fill;
 
-            cboPizzas.SelectedIndex = -1; 
-            cboCrustType.SelectedIndex = -1; 
-            cboPizzaSize.SelectedIndex = -1; 
-            numQty.Value = 0; 
+                //Add together the line totals for every cart item
+                decimal grandTotal = cart.Sum(cartItem =>  cartItem.Price);
+                txtGrandTotal.Text = grandTotal.ToString("0.00");
+
+                txtTotal.Visible = true;
+                btnCheckOut.Visible = true;
+                txtTotal.Text = totalPrice.ToString("0.00");
+                cboPizzas.SelectedIndex = -1;
+                cboCrustType.SelectedIndex = -1;
+                cboPizzaSize.SelectedIndex = -1;
+                numQty.Value = 0;
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show(ex.Message, "Invalid quantity");
+            } 
         }
+        private string GetOptionName(ComboBox comboBox, int id)
+        {
+            foreach (object option in comboBox.Items)
+            {
+                string[] parts = option.ToString()
+                    .Split(new[] { " - " }, StringSplitOptions.None);
 
+                int optionId;
+
+                if (parts.Length >= 3 &&
+                    int.TryParse(parts[0], out optionId) &&
+                    optionId == id)
+                {
+                    // Preserve names that contain the separator.
+                    return string.Join(" - ", parts, 1, parts.Length - 2);
+                }
+            }
+
+            return "Unknown";
+        }
         private void grpSize_Enter(object sender, EventArgs e)
         {
 
@@ -177,9 +210,7 @@ namespace FoodDeliverySYS
                     " - " + ds2.Tables["PizzaSize"].Rows[i][2]);
             }
 
-
         }
-
         private void txtOrderDate_TextChanged(object sender, EventArgs e)
         {
 
@@ -218,11 +249,23 @@ namespace FoodDeliverySYS
         }
         private void btnCheckOut_Click(object sender, EventArgs e)
         {
-            this.currentOrderID = CustomerOrders.getOrderIdByCustomerId(currentCustomerId.ToString()); //get the order id by customer id 
-            this.currentOrderDetailId = OrderDetails.getOrderDetailIdByCustomerId(currentOrderDetailId.ToString());
+            if (cart.Count == 0)
+            {
+                MessageBox.Show("Please add an item to the cart.");
+                return;
+            }
+            // Pass the complete cart instead of the latest selection.
+            frmPayment paymentForm = new frmPayment(
+                cart, currentCustomerId);
+
+            paymentForm.Show();
             this.Hide();
-            frmPayment frmPayment = new frmPayment(pizza_id,crust_id, size_id, qty, totalPrice, currentCustomerId);
-            frmPayment.Show();
+        }
+
+        private void dgvCartList_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }
+

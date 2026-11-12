@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -17,14 +18,13 @@ namespace FoodDeliverySYS
         private int crust_id;
         private int size_id;
         private int qty;
-
         private int currentCustomerId;       
         private decimal totalPrice;
+        private List<PizzaCart> cartItems;
 
         Payment thePayment = new Payment();
         OrderDetails theOrderDetails = new OrderDetails();
         CustomerOrders theOrder = new CustomerOrders();    
-
 
         public frmPayment(int pizza_id,int crust_id, int size_id,int qty, decimal totalPrice, int currentCustomerId)
         {
@@ -36,7 +36,22 @@ namespace FoodDeliverySYS
             this.totalPrice = totalPrice;
             this.currentCustomerId = currentCustomerId;
         }
+        public frmPayment(List<PizzaCart> items, int customerId)
+        {
+            InitializeComponent();
+            // Copy each cart item for checkout.
+            cartItems = items.Select(item => new PizzaCart
+            {
+                PizzaId = item.PizzaId,
+                CrustId = item.CrustId,
+                SizeId = item.SizeId,
+                Quantity = item.Quantity,
+                Price = item.Price
+            }).ToList();
 
+            currentCustomerId = customerId;
+            totalPrice = cartItems.Sum(item => item.Price);
+        }
         private void labOrderId_Click(object sender, EventArgs e)
         {
 
@@ -187,6 +202,11 @@ namespace FoodDeliverySYS
             {
                 Application.Exit();
             }
+        }
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
         }
     }
 }
