@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using FoodDeliverySYS.Business;
+using FoodDeliverySYS.DataAccess;
 
 namespace FoodDeliverySYS
 {
@@ -58,12 +60,18 @@ namespace FoodDeliverySYS
         }
 
         private void frmPayment_Load(object sender, EventArgs e)
-        {          
-            txtOrderId.Text = CustomerOrders.getNextOrderID().ToString("00000");
-            txtOrderDetailId.Text = OrderDetails.getNextOrderDetailId().ToString("00000");
-            txtPaymentId.Text = Payment.getNextPayment_id().ToString("00000");
+        {
+            // Oracle creates the IDs when the order is saved.
+            txtOrderId.Text = "";
+            txtOrderDetailId.Text = "";
+            txtPaymentId.Text = "";
             txtOrderDate.Text = DateTime.Now.ToString("yyyy-MM-dd"); //https://stackoverflow.com/questions/6817266/how-to-get-the-current-date-without-the-time
             txtPaymentAmount.Text = totalPrice.ToString("0.00");
+
+            txtOrderId.ReadOnly = true;
+            txtOrderDetailId.ReadOnly = true;
+            txtPaymentId.ReadOnly = true;
+            txtPaymentAmount.ReadOnly = true;         
 
             DataSet dsM = PaymentMethod.getAllPaymentMethod();
             cboPaymentMethod.Items.Clear();
@@ -126,30 +134,67 @@ namespace FoodDeliverySYS
                 MessageBox.Show("Please enter a valid CVV", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            int orderId = Convert.ToInt32(txtOrderId.Text);
-            int orderDetailId = Convert.ToInt32(txtOrderDetailId.Text);
-            int paymentId = Convert.ToInt32(txtPaymentId.Text);
-            int paymentMethodId = Convert.ToInt32(cboPaymentMethod.Text.Substring(0, 2));
+            if (cartItems == null || cartItems.Count == 0)
+            {
+                MessageBox.Show("The cart is empty.");
+                return;
+            }
 
-            CustomerOrders theOrder = new CustomerOrders(orderId, DateTime.Now, totalPrice, currentCustomerId, 'Y', "Processing");
-            theOrder.addCustomerOrder();
+            if (cboPaymentMethod.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please select a payment method.");
+                return;
+            }
 
-            OrderDetails orderDetails = new OrderDetails(paymentMethodId, orderId, pizza_id, crust_id,size_id, qty, totalPrice);
-            orderDetails.addOrderDetails();
+            // Read the ID from the selected payment method.
+            string[] methodParts = cboPaymentMethod.SelectedItem
+                .ToString()
+                .Split(new[] { " - " }, StringSplitOptions.None);
 
-            Payment payment = new Payment(paymentId, orderId, Convert.ToDecimal(txtPaymentAmount.Text), paymentMethodId);
+            int paymentMethodId = int.Parse(methodParts[0]);
 
-            payment.addPayment();
+            int savedOrderId;
+            btnConfirmPayment.Enabled = false;
 
-            MessageBox.Show("Payment Confirmed\n" +
-                "Order Date: " +theOrder.getOrder_date() +"\n" +
-                "Total Price: " +theOrder.getTotal_price() +"\n" +
-                "Payment Status: " +theOrder.getPayment_status() +"\n" +
-                "Order Status: " +theOrder.getOrder_status() +"\n",
-                "Payment Confirmation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            try
+            {
+                // Supply the Oracle implementation to the business layer.
+                var orderFacade = new OrderFacade(new OracleOrderStore());
+
+                // Save the complete cart through one business operation.
+                savedOrderId = orderFacade.PlaceOrder(
+                    currentCustomerId,
+                    cartItems,
+                    paymentMethodId);
+            }
+            catch (Exception ex)
+            {
+                btnConfirmPayment.Enabled = true;
+
+                MessageBox.Show(
+                    "The order could not be saved.\n" + ex.Message,
+                    "Order error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+
+                return;
+            }
+
+            // Show confirmation after saving succeeds.
+            txtOrderId.Text = savedOrderId.ToString("00000");
+
+            MessageBox.Show(
+                "Payment Confirmed\n" +
+                "Order ID: " + savedOrderId.ToString("00000") + "\n" +
+                "Total Price: " + totalPrice.ToString("0.00") + "\n" +
+                "Order Status: Processing",
+                "Payment Confirmation",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
 
             this.Hide();
-            frmCustomerMain customerMain = new frmCustomerMain(currentCustomerId);
+            frmCustomerMain customerMain =
+                new frmCustomerMain(currentCustomerId);
             customerMain.Show();
 
         }
