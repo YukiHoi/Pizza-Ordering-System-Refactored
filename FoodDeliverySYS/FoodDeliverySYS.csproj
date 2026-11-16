@@ -100,13 +100,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Business\ApplePayPaymentStrategy.cs" />
+    <Compile Include="Business\CardPaymentStrategy.cs" />
+    <Compile Include="Business\DeliveryService.cs" />
+    <Compile Include="Business\IDeliveryStore.cs" />
     <Compile Include="Business\IOrderStore.cs" />
+    <Compile Include="Business\IPaymentStrategy.cs" />
     <Compile Include="Business\OrderFacade.cs" />
+    <Compile Include="Business\PayPalPaymentStrategy.cs" />
     <Compile Include="Business\PizzaCartBuilder.cs" />
     <Compile Include="Category.cs" />
     <Compile Include="CrustType.cs" />
     <Compile Include="Customer.cs" />
     <Compile Include="CustomerOrders.cs" />
+    <Compile Include="DataAccess\OracleDeliveryStore.cs" />
     <Compile Include="DataAccess\OracleOrderStore.cs" />
     <Compile Include="Delivery.cs" />
     <Compile Include="DBConnect.cs" />

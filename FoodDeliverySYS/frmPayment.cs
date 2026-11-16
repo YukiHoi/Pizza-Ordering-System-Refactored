@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -85,55 +86,6 @@ namespace FoodDeliverySYS
 
         private void btnConfirmPayment_Click(object sender, EventArgs e)
         {
-            if(txtPersonName.Text == "" || txtCardNo.Text == "" || txtExpirDate.Text == "" || txtCvv.Text == "")
-            {
-                MessageBox.Show("Please enter all payment details", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            if(txtPersonName.Text.Length <3 || txtPersonName.Text.Any(char.IsDigit) || txtPersonName.Text.Any(char.IsSymbol) || txtPersonName.Text.Any(char.IsNumber)) // https://stackoverflow.com/questions/4503542/check-for-special-characters-in-a-string
-            {
-                MessageBox.Show("Please enter a valid name", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            if (txtCardNo.Text.Length != 16 || txtCardNo.Text.Any(char.IsLetter) || txtCardNo.Text.Any(char.IsSymbol) || txtCardNo.Text.Any(char.IsWhiteSpace)) //https://stackoverflow.com/questions/4503542/check-for-special-characters-in-a-string
-            {
-                MessageBox.Show("Please enter a valid card number", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            string expirDate = txtExpirDate.Text;
-            string[] parts = expirDate.Split('/');
-            if (parts.Length != 2) 
-            {
-                MessageBox.Show("Please enter a valid expiry date with '/ '", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            int month, year;
-            if (!int.TryParse(parts[0], out month) || !int.TryParse(parts[1], out year)) //!mean cant convert to int, out'expect TryParse to set this variable to month and year https://stackoverflow.com/questions/19830079/tryparse-for-numbers-in-c
-            {
-                MessageBox.Show("Please enter a valid expiry date", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            if (month < 1 || month > 12)
-            {
-                MessageBox.Show("Please enter a valid month (01–12)", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            if(year < 25)
-            {
-                MessageBox.Show("Card is expired.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (txtExpirDate.Text.Length != 5 || txtExpirDate.Text.Any(char.IsLetter) || txtExpirDate.Text.Any(char.IsSymbol))
-            {
-                MessageBox.Show("Please enter a valid expiry date", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            if (txtCvv.Text.Length != 3 || txtCvv.Text.Any(char.IsLetter) || txtCvv.Text.Any(char.IsSymbol))
-            {
-                MessageBox.Show("Please enter a valid CVV", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
             if (cartItems == null || cartItems.Count == 0)
             {
                 MessageBox.Show("The cart is empty.");
@@ -146,45 +98,73 @@ namespace FoodDeliverySYS
                 return;
             }
 
-            // Read the ID from the selected payment method.
-            string[] methodParts = cboPaymentMethod.SelectedItem
-                .ToString()
+            string[] parts = cboPaymentMethod.SelectedItem.ToString()
                 .Split(new[] { " - " }, StringSplitOptions.None);
 
-            int paymentMethodId = int.Parse(methodParts[0]);
+            int paymentMethodId = int.Parse(parts[0]);
+            IPaymentStrategy strategy;
+
+            // Choose the strategy for the selected payment method.
+            switch (paymentMethodId)
+            {
+                case 2: // Credit Card
+                    strategy = new CardPaymentStrategy(
+                        txtPersonName.Text.Trim(),
+                        txtCardNo.Text.Trim(),
+                        txtExpirDate.Text.Trim(),
+                        txtCvv.Text.Trim());
+                    break;
+
+                case 1: // Apple Pay
+                case 3: // PayPal
+                    string methodName =
+                        paymentMethodId == 1 ? "Apple Pay" : "PayPal";
+
+                    bool approved = MessageBox.Show(
+                        "Approve this simulated " + methodName + " payment?",
+                        "Simulated payment",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question) == DialogResult.Yes;
+
+                    if (paymentMethodId == 1)
+                        strategy = new ApplePayPaymentStrategy(approved);
+                    else
+                        strategy = new PayPalPaymentStrategy(approved);
+                    break;
+
+                default:
+                    MessageBox.Show(
+                        "This payment method is not supported in this prototype.");
+                    return;
+            }
 
             int savedOrderId;
             btnConfirmPayment.Enabled = false;
 
             try
             {
-                // Supply the Oracle implementation to the business layer.
-                var orderFacade = new OrderFacade(new OracleOrderStore());
+                var facade = new OrderFacade(new OracleOrderStore());
 
-                // Save the complete cart through one business operation.
-                savedOrderId = orderFacade.PlaceOrder(
+                // The Façade processes payment and then saves the order.
+                savedOrderId = facade.PlaceOrder(
                     currentCustomerId,
                     cartItems,
-                    paymentMethodId);
+                    paymentMethodId,
+                    strategy);
             }
             catch (Exception ex)
             {
                 btnConfirmPayment.Enabled = true;
 
-                MessageBox.Show(
-                    "The order could not be saved.\n" + ex.Message,
-                    "Order error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-
+                MessageBox.Show(ex.Message, "Checkout unsuccessful",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            // Show confirmation after saving succeeds.
             txtOrderId.Text = savedOrderId.ToString("00000");
 
             MessageBox.Show(
-                "Payment Confirmed\n" +
+                "Simulated Payment Confirmed\n" +
                 "Order ID: " + savedOrderId.ToString("00000") + "\n" +
                 "Total Price: " + totalPrice.ToString("0.00") + "\n" +
                 "Order Status: Processing",
@@ -193,18 +173,28 @@ namespace FoodDeliverySYS
                 MessageBoxIcon.Information);
 
             this.Hide();
-            frmCustomerMain customerMain =
-                new frmCustomerMain(currentCustomerId);
-            customerMain.Show();
-
+            new frmCustomerMain(currentCustomerId).Show();
         }
 
         private void cboPaymentMethod_SelectedIndexChanged(object sender, EventArgs e)
         {
-            grpPersonName.Visible = true;
-            grpCardNo.Visible = true;
-            grpExpirDate.Visible = true;
-            grpCVV.Visible = true;
+            bool isCard = false;
+
+            if (cboPaymentMethod.SelectedIndex != -1)
+            {
+                string[] parts = cboPaymentMethod.SelectedItem
+                    .ToString()
+                    .Split(new[] { " - " }, StringSplitOptions.None);
+
+                // Credit Card has payment method ID 2.
+                isCard = int.Parse(parts[0]) == 2;
+            }
+
+            // Card details are needed only for Credit Card.
+            grpPersonName.Visible = isCard;
+            grpCardNo.Visible = isCard;
+            grpExpirDate.Visible = isCard;
+            grpCVV.Visible = isCard;
         }
 
         private void grpPayment_Enter(object sender, EventArgs e)

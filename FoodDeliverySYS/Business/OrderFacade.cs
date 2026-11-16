@@ -20,8 +20,21 @@ namespace FoodDeliverySYS.Business
         public int PlaceOrder(
             int customerId,
             IReadOnlyList<PizzaCart> items,
-            int paymentMethodId)
+            int paymentMethodId,
+            IPaymentStrategy paymentStrategy)
         {
+            if (customerId <= 0)
+                throw new ArgumentException("A customer is required.");
+            if (paymentStrategy == null)
+                throw new ArgumentNullException(nameof (paymentStrategy));
+
+            decimal total = items.Sum(item => item.Price);
+            if (!paymentStrategy.Pay(total))
+            {
+                throw new InvalidOperationException(
+                    "Payment was declined or the details are invalid.");
+            }
+
             // Ask the supplied store to save the complete order.
             return orderStore.SaveOrder(
                 customerId, items, paymentMethodId);

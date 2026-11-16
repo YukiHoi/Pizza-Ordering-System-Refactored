@@ -1,31 +1,37 @@
 ﻿@startuml
 'https://plantuml.com/class-diagram
 
-title Draft UML class diagram
+title Builder UML class diagram
 
-class frmPlaceOrder {
-    - cart : List<PizzaCart>
-    + AddToCart() : void
-    + Checkout() : void
-}
+class frmPlaceOrder
 
 class PizzaCartBuilder {
-    + WithPizza(id : int) : PizzaCartBuilder
-    + WithSize(id : int) : PizzaCartBuilder
-    + WithCrust(id : int) : PizzaCartBuilder
-    + WithQuantity(value : int) : PizzaCartBuilder
-    + Build() : PizzaCart
+    -pizzaId : int
+    -sizeId : int
+    -crustId : int
+    -quantity : int
+    +WithPizzaId(Id : int) : PizzaCartBuilder
+    +WithSizeId(Id : int) : PizzaCartBuilder
+    +WithCrustId(Id : int) : PizzaCartBuilder
+    +WithQuantity(value : int) : PizzaCartBuilder
+    +Build() : PizzaCart
 }
 
 class PizzaCart {
-    + PizzaId : int
-    + CrustId : int
-    + SizeId : int
-    + Quantity : int
-    + Price : decimal
+    +PizzaId : int
+    +SizeId : int
+    +CrustId : int
+    +Quantity : int
+    +Price : decimal
+}
+
+class PriceCalculator {
+    +{static} CalculatePrice(pizzaPrice : decimal, crustPrice : decimal, sizePrice : decimal, quantity : int) : decimal
 }
 
 frmPlaceOrder ..> PizzaCartBuilder : uses
 PizzaCartBuilder ..> PizzaCart : creates
-frmPlaceOrder "1" --> "0..*" PizzaCart : holds cart items
+frmPlaceOrder ..> PriceCalculator : calculates price
+frmPlaceOrder --> "0..*" PizzaCart : cart
+
 @enduml

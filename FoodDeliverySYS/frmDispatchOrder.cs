@@ -8,12 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FoodDeliverySYS.Models;
+using FoodDeliverySYS.Business;
+using FoodDeliverySYS.DataAccess;
 
 namespace FoodDeliverySYS
 {
     public partial class frmDispatchOrder : Form
     {
+        private readonly DeliveryService deliveryService = new DeliveryService(new OracleDeliveryStore());
 
         Delivery theDelivery = new Delivery();
         Staff theStaff = new Staff();
@@ -24,28 +26,40 @@ namespace FoodDeliverySYS
             InitializeComponent();
             
         }
-
-
         private void btnDispatchOrder_Click(object sender, EventArgs e)
         {
 
-            if (cboStaffId.SelectedIndex == -1 || cboOrderId.SelectedIndex == null)
+            if (cboStaffId.SelectedIndex == -1 || cboOrderId.SelectedIndex == -1)
             {
-                MessageBox.Show("Please select a Driver ", "Error" ,MessageBoxButtons.OK, MessageBoxIcon.Error);
-
+                MessageBox.Show("Please select an order and a driver.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-      
+
             string driver = cboStaffId.SelectedItem.ToString();
             string[] parts = driver.Split('-');
             int staffId = int.Parse(parts[0]);
 
             DateTime deliveryDate = Convert.ToDateTime(txtDeliveryDate.Text); //https://stackoverflow.com/questions/39071415/convert-todatetimedatestring-to-required-dd-mm-yyyy-format-of-date
 
-            Delivery theDelivery = new Delivery(Convert.ToInt32(txtDeliveryId.Text), deliveryDate, staffId, Convert.ToInt32(cboOrderId.Text));
-            theDelivery.addDelivery();
-
-            theOrder.updateOrderStatusToDispatched();
+            try
+            {
+                // Pass the selected delivery details to the Business layer.
+                deliveryService.DispatchOrder(
+                    Convert.ToInt32(txtDeliveryId.Text),
+                    Convert.ToInt32(cboOrderId.SelectedItem.ToString()),
+                    staffId,
+                    deliveryDate);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "The order could not be dispatched.\n" + ex.Message,
+                    "Dispatch error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
             DialogResult message = MessageBox.Show("Order has been updated as Dispatched.","Successfullly",MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             grpDispatchConfirmation.Visible = false;

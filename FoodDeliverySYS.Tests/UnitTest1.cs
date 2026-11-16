@@ -26,11 +26,13 @@ public class Tests
         Assert.That(actual, Is.EqualTo(33m));
     }
 
+
+
     [Test]
     public void PizzaCartBuilder_Build_ReturnSelectedValues()
     {
         var item = new PizzaCartBuilder()
-            .WithPizzaId(3) 
+            .WithPizzaId(3)
             .WithSizeId(2)
             .WithCrustId(1)
             .WithQuantity(2)
@@ -40,15 +42,63 @@ public class Tests
         Assert.That(item.SizeId, Is.EqualTo(2));
         Assert.That(item.CrustId, Is.EqualTo(1));
         Assert.That(item.Quantity, Is.EqualTo(2));
-    }       
+    }
     [Test]
     public void PizzaCartBuilder_Build_ThrowsExceptionForInvalidQuantity()
     {
-        Assert.Throws<System.ArgumentException>(() => new PizzaCartBuilder()    
-            .WithPizzaId(3) 
+        Assert.Throws<System.ArgumentException>(() => new PizzaCartBuilder()
+            .WithPizzaId(3)
             .WithSizeId(2)
             .WithCrustId(1)
             .WithQuantity(11)
             .Build());
+    }
+    //Test PayPalPaymentStrategy
+    [TestCase(true)]
+    [TestCase(false)]
+    public void PayPal_ReturnsApprovalDecision(bool approved)
+    {
+        var strategy = new PayPalPaymentStrategy(approved);
+
+        Assert.That(strategy.Pay(20m), Is.EqualTo(approved));
+    }
+
+    [Test]
+    public void Card_WithValidDetails_ReturnsTrue()
+    {
+        string expiry = System.DateTime.Today
+            .AddYears(1).ToString("MM/yy",
+                System.Globalization.CultureInfo.InvariantCulture);
+
+        var strategy = new CardPaymentStrategy(
+            "Test Customer", "1234567812345678", expiry, "123");
+
+        Assert.That(strategy.Pay(20m), Is.True);
+    }
+
+    [Test]
+    public void Card_WithShortCardNumber_ReturnsFalse()
+    {
+        string expiry = System.DateTime.Today
+            .AddYears(1).ToString("MM/yy",
+                System.Globalization.CultureInfo.InvariantCulture);
+
+        var strategy = new CardPaymentStrategy(
+            "Test Customer", "1234", expiry, "123");
+
+        Assert.That(strategy.Pay(20m), Is.False);
+    }
+
+    [Test]
+    public void Card_WithExpiredDate_ReturnsFalse()
+    {
+        string expiry = System.DateTime.Today
+            .AddYears(-1).ToString("MM/yy",
+                System.Globalization.CultureInfo.InvariantCulture);
+
+        var strategy = new CardPaymentStrategy(
+            "Test Customer", "1234567812345678", expiry, "123");
+
+        Assert.That(strategy.Pay(20m), Is.False);
     }
 }

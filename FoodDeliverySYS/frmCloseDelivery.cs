@@ -8,11 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FoodDeliverySYS.Models;
-
+using FoodDeliverySYS.Business;
+using FoodDeliverySYS.DataAccess;
 namespace FoodDeliverySYS
 {
     public partial class frmCloseDelivery : Form
     {
+        private readonly DeliveryService deliveryService = new DeliveryService(new OracleDeliveryStore());
+
         Delivery theDelivery = new Delivery();
         CustomerOrders theOrder = new CustomerOrders();
 
@@ -33,18 +36,30 @@ namespace FoodDeliverySYS
         private bool MarkAsDelivery;
         private void btnCloseDelivery_Click(object sender, EventArgs e)
         {
-            if(cboOrderId.SelectedIndex == -1 || cboOrderId.SelectedIndex == null)
+            if (cboOrderId.SelectedIndex == -1)
             {
-                MessageBox.Show("Please select an Order ID to close the delivery", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Please select an order to close the delivery.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            
-            int order_id = (int)Convert.ToUInt32(cboOrderId.SelectedItem.ToString());
-            theOrder.getCustomerOrder(order_id);// get the order details from the database by this customer ID
-            theOrder.updateOrderStatusToDelivered();
+            int orderId = Convert.ToInt32(cboOrderId.SelectedItem.ToString());
+
+            try
+            {
+                // Ask the Business layer to complete the delivery.
+                deliveryService.CloseDelivery(orderId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "The delivery could not be closed.\n" + ex.Message,
+                    "Delivery error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
 
             DialogResult message = MessageBox.Show("Order has been updated as Delivered. [ Order Closed ]", "Successfullly", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
 
             grpDispatchedOrders.Visible = false;
             dgvDispatchedOrder.Visible = false;
