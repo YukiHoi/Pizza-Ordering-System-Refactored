@@ -68,20 +68,44 @@ namespace FoodDeliverySYS.DataAccess
             CustomerOrders order)
         {
             String sqlQuery =
-                "INSERT INTO CustomerOrders " +
-                "(order_id, order_date, total_price, customer_id, " +
-                "payment_status, order_status) VALUES (" +
-                order.getOrder_id() + ", " +
-                "TO_DATE('" +
-                order.getOrder_date().ToString("yyyy-MM-dd") +
-                "', 'YYYY-MM-DD'), " +
-                order.getTotal_price().ToString(
-                    CultureInfo.InvariantCulture) + ", " +
-                order.getCustomer_id() + ", '" +
-                order.getPayment_status() + "', '" +
-                order.getOrder_status() + "')";
+        "INSERT INTO CustomerOrders " +
+        "(order_id, order_date, total_price, customer_id, " +
+        "payment_status, order_status) " +
+        "VALUES (:orderId, :orderDate, :totalPrice, " +
+        ":customerId, :paymentStatus, :orderStatus)";
 
             OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+            cmd.BindByName = true;
+
+            OracleParameter orderId =
+                new OracleParameter("orderId", OracleDbType.Int32);
+            orderId.Value = order.getOrder_id();
+            cmd.Parameters.Add(orderId);
+
+            OracleParameter orderDate =
+                new OracleParameter("orderDate", OracleDbType.Date);
+            orderDate.Value = order.getOrder_date();
+            cmd.Parameters.Add(orderDate);
+
+            OracleParameter totalPrice =
+                new OracleParameter("totalPrice", OracleDbType.Decimal);
+            totalPrice.Value = order.getTotal_price();
+            cmd.Parameters.Add(totalPrice);
+
+            OracleParameter customerId =
+                new OracleParameter("customerId", OracleDbType.Int32);
+            customerId.Value = order.getCustomer_id();
+            cmd.Parameters.Add(customerId);
+
+            OracleParameter paymentStatus =
+                new OracleParameter("paymentStatus", OracleDbType.Varchar2);
+            paymentStatus.Value = order.getPayment_status().ToString();
+            cmd.Parameters.Add(paymentStatus);
+
+            OracleParameter orderStatus =
+                new OracleParameter("orderStatus", OracleDbType.Varchar2);
+            orderStatus.Value = order.getOrder_status();
+            cmd.Parameters.Add(orderStatus);
 
             cmd.ExecuteNonQuery();
             cmd.Dispose();
