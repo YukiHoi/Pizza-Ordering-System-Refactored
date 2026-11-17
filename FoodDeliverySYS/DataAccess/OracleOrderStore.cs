@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using FoodDeliverySYS.Business;
 using Oracle.ManagedDataAccess.Client;
@@ -8,7 +7,7 @@ using Oracle.ManagedDataAccess.Client;
 namespace FoodDeliverySYS.DataAccess
 {
     public class OracleOrderStore : IOrderStore
-    {    
+    {
         public int SaveOrder(
             int customerId,
             List<PizzaCart> items,
@@ -37,7 +36,7 @@ namespace FoodDeliverySYS.DataAccess
 
             addCustomerOrder(conn, order);
 
-            // Save each pizza item.
+            // Save each pizza item under the same order.
             foreach (PizzaCart item in items)
             {
                 sqlQuery =
@@ -48,7 +47,7 @@ namespace FoodDeliverySYS.DataAccess
                 addOrderDetails(conn, detailId, orderId, item);
             }
 
-            // Save the payment.
+            // Save one payment for the complete order.
             sqlQuery =
                 "SELECT PAYMENT_SEQ.NEXTVAL FROM dual";
 
@@ -68,11 +67,11 @@ namespace FoodDeliverySYS.DataAccess
             CustomerOrders order)
         {
             String sqlQuery =
-        "INSERT INTO CustomerOrders " +
-        "(order_id, order_date, total_price, customer_id, " +
-        "payment_status, order_status) " +
-        "VALUES (:orderId, :orderDate, :totalPrice, " +
-        ":customerId, :paymentStatus, :orderStatus)";
+                "INSERT INTO CustomerOrders " +
+                "(order_id, order_date, total_price, customer_id, " +
+                "payment_status, order_status) " +
+                "VALUES (:orderId, :orderDate, :totalPrice, " +
+                ":customerId, :paymentStatus, :orderStatus)";
 
             OracleCommand cmd = new OracleCommand(sqlQuery, conn);
             cmd.BindByName = true;
@@ -203,6 +202,20 @@ namespace FoodDeliverySYS.DataAccess
 
             cmd.ExecuteNonQuery();
             cmd.Dispose();
+        }
+
+        // Read the next value from an Oracle sequence.
+        private int getNextId(
+            OracleConnection conn,
+            String sqlQuery)
+        {
+            OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+
+            int nextId = Convert.ToInt32(cmd.ExecuteScalar());
+
+            cmd.Dispose();
+
+            return nextId;
         }
     }
 }
