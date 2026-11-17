@@ -120,16 +120,47 @@ namespace FoodDeliverySYS.DataAccess
             String sqlQuery =
                 "INSERT INTO OrderDetails " +
                 "(order_detail_id, order_id, pizza_id, crust_id, " +
-                "size_id, quantity, line_total_price) VALUES (" +
-                detailId + ", " +
-                orderId + ", " +
-                item.PizzaId + ", " +
-                item.CrustId + ", " +
-                item.SizeId + ", " +
-                item.Quantity + ", " +
-                item.Price.ToString(CultureInfo.InvariantCulture) + ")";
+                "size_id, quantity, line_total_price) " +
+                "VALUES (:detailId, :orderId, :pizzaId, :crustId, " +
+                ":sizeId, :quantity, :lineTotal)";
 
             OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+            cmd.BindByName = true;
+
+            OracleParameter detailIdParameter =
+                new OracleParameter("detailId", OracleDbType.Int32);
+            detailIdParameter.Value = detailId;
+            cmd.Parameters.Add(detailIdParameter);
+
+            OracleParameter orderIdParameter =
+                new OracleParameter("orderId", OracleDbType.Int32);
+            orderIdParameter.Value = orderId;
+            cmd.Parameters.Add(orderIdParameter);
+
+            OracleParameter pizzaId =
+                new OracleParameter("pizzaId", OracleDbType.Int32);
+            pizzaId.Value = item.PizzaId;
+            cmd.Parameters.Add(pizzaId);
+
+            OracleParameter crustId =
+                new OracleParameter("crustId", OracleDbType.Int32);
+            crustId.Value = item.CrustId;
+            cmd.Parameters.Add(crustId);
+
+            OracleParameter sizeId =
+                new OracleParameter("sizeId", OracleDbType.Int32);
+            sizeId.Value = item.SizeId;
+            cmd.Parameters.Add(sizeId);
+
+            OracleParameter quantity =
+                new OracleParameter("quantity", OracleDbType.Int32);
+            quantity.Value = item.Quantity;
+            cmd.Parameters.Add(quantity);
+
+            OracleParameter lineTotal =
+                new OracleParameter("lineTotal", OracleDbType.Decimal);
+            lineTotal.Value = item.Price;
+            cmd.Parameters.Add(lineTotal);
 
             cmd.ExecuteNonQuery();
             cmd.Dispose();
@@ -144,30 +175,34 @@ namespace FoodDeliverySYS.DataAccess
         {
             String sqlQuery =
                 "INSERT INTO Payment " +
-                "(payment_id, order_id, payment_amount, " +
-                "payment_method_id) VALUES (" +
-                paymentId + ", " +
-                orderId + ", " +
-                total.ToString(CultureInfo.InvariantCulture) + ", " +
-                paymentMethodId + ")";
+                "(payment_id, order_id, payment_amount, payment_method_id) " +
+                "VALUES (:paymentId, :orderId, :amount, :methodId)";
 
             OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+            cmd.BindByName = true;
+
+            OracleParameter paymentIdParameter =
+                new OracleParameter("paymentId", OracleDbType.Int32);
+            paymentIdParameter.Value = paymentId;
+            cmd.Parameters.Add(paymentIdParameter);
+
+            OracleParameter orderIdParameter =
+                new OracleParameter("orderId", OracleDbType.Int32);
+            orderIdParameter.Value = orderId;
+            cmd.Parameters.Add(orderIdParameter);
+
+            OracleParameter amount =
+                new OracleParameter("amount", OracleDbType.Decimal);
+            amount.Value = total;
+            cmd.Parameters.Add(amount);
+
+            OracleParameter methodId =
+                new OracleParameter("methodId", OracleDbType.Int32);
+            methodId.Value = paymentMethodId;
+            cmd.Parameters.Add(methodId);
 
             cmd.ExecuteNonQuery();
             cmd.Dispose();
-        }
-
-        private int getNextId(
-            OracleConnection conn,
-            String sqlQuery)
-        {
-            OracleCommand cmd = new OracleCommand(sqlQuery, conn);
-
-            int nextId = Convert.ToInt32(cmd.ExecuteScalar());
-
-            cmd.Dispose();
-
-            return nextId;
         }
     }
 }
