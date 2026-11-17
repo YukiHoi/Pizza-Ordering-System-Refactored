@@ -62,7 +62,7 @@ namespace FoodDeliverySYS.DataAccess
             return orderId;
         }
 
-        private void addCustomerOrder(
+        private static void addCustomerOrder(
             OracleConnection conn,
             CustomerOrders order)
         {
@@ -110,7 +110,7 @@ namespace FoodDeliverySYS.DataAccess
             cmd.Dispose();
         }
 
-        private void addOrderDetails(
+        private static void addOrderDetails(
             OracleConnection conn,
             int detailId,
             int orderId,
@@ -165,7 +165,7 @@ namespace FoodDeliverySYS.DataAccess
             cmd.Dispose();
         }
 
-        private void addPayment(
+        private static void addPayment(
             OracleConnection conn,
             int paymentId,
             int orderId,
@@ -205,7 +205,7 @@ namespace FoodDeliverySYS.DataAccess
         }
 
         // Read the next value from an Oracle sequence.
-        private int getNextId(
+        private static int getNextId(
             OracleConnection conn,
             String sqlQuery)
         {
