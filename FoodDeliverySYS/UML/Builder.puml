@@ -3,9 +3,7 @@
 
 title Builder UML class diagram
 
-class frmPlaceOrder
-
-class PizzaCartBuilder {
+class PizzaBuilder {
     -pizzaId : int
     -sizeId : int
     -crustId : int
@@ -24,13 +22,16 @@ class PizzaCart {
     +Quantity : int
     +Price : decimal
 }
+class frmPlaceOrder{
+    +PlaceOrder(cart : List<PizzaCart>, customerId : int) : void
+}
 
 class PriceCalculator {
     +{static} CalculatePrice(pizzaPrice : decimal, crustPrice : decimal, sizePrice : decimal, quantity : int) : decimal
 }
 
-frmPlaceOrder ..> PizzaCartBuilder : uses
-PizzaCartBuilder ..> PizzaCart : creates
+frmPlaceOrder ..> PizzaBuilder : uses
+PizzaBuilder ..> PizzaCart : creates
 frmPlaceOrder ..> PriceCalculator : calculates price
 frmPlaceOrder --> "0..*" PizzaCart : cart
 

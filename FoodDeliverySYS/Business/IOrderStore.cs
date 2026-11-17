@@ -11,7 +11,7 @@ namespace FoodDeliverySYS.Business
         //Save one order, all items and one payment together.
         int SaveOrder(
             int customerId,
-            IReadOnlyList<PizzaCart> items,
+            List<PizzaCart> items,
             int paymentMethodId
             );
     }

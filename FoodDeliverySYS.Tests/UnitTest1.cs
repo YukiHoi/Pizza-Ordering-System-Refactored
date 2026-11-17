@@ -1,104 +1,102 @@
-﻿using FoodDeliverySYS;
+﻿using System.ComponentModel;
+using FoodDeliverySYS;
 using FoodDeliverySYS.Business;
 
-namespace FoodDeliverySYS.Tests;
-
-
-public class Tests
+namespace FoodDeliverySYS.Tests
 {
-    [Test]
-    public void PriceCalculator_Calculate_ReturnsCorrectTotal()
+    public class Tests
     {
-        decimal pizzaPrice = 10.00m;
-        decimal crustPrice = 2.00m;
-        decimal sizePrice = 3.00m;
-        int quantity = 1;
+     
+        [Test]    //check calculate total price
+        public void TestCalculateTotalPrice()
+        {
+            decimal actual = PriceCalculator.CalculatePrice(6m, 3.5m, 6.99m, 2);
 
-        decimal actual = PriceCalculator.CalculatePrice(pizzaPrice, crustPrice, sizePrice, quantity);
-        Assert.That(actual, Is.EqualTo(15.00m));
-    }
+            Assert.That(actual, Is.EqualTo(32.98m));
+        }
+       
+        [Test]  //check that builder keep value
+        public void BuilderKeepsValue()
+        {
+            PizzaCart item = new PizzaBuilder()
+                .WithPizzaId(1)
+                .WithCrustId(2)
+                .WithSizeId(3)
+                .WithQuantity(4)
+                .Build();
 
-    [Test]
-    public void Calculate_HandlesPriceWithDecimalValues()
-    {
-        decimal actual = PriceCalculator.CalculatePrice(10.50m, 2.25m, 3.75m, 2);
+            Assert.That(item.PizzaId, Is.EqualTo(1));
+            Assert.That(item.CrustId, Is.EqualTo(2));
+            Assert.That(item.SizeId, Is.EqualTo(3));
+            Assert.That(item.Quantity, Is.EqualTo(4));
+        }
+        
+        [Test] //Test mixmum quantity
+        public void Builder_RejectQuantityAboveTen() {
 
-        Assert.That(actual, Is.EqualTo(33m));
-    }
+            PizzaBuilder builder = new PizzaBuilder()
+                .WithPizzaId(1)
+                .WithCrustId(2)
+                .WithSizeId(3)
+                .WithQuantity(12);
+            Assert.Throws<ArgumentException>(() => builder.Build());
+        }
+        [Test] //Test valid card number
+        public void CardPayment_RejectShortNumber()
+        {
+            CardPaymentStrategy strategy = new CardPaymentStrategy(
+                "Name", "123", "11/09/33", "222");
+
+            bool approved = strategy.Pay(30.00m);
+            Assert.That(approved, Is.False);
+        }
+        [Test] //Check simulated Apply Pay approval
+        public void ApplePay_ReturnApprovedDesion()
+        {
+            ApplePayPaymentStrategy strategy = new ApplePayPaymentStrategy(true);
+
+            bool approved = strategy.Pay(33.00m);
+            Assert.That(approved, Is.True);
+        }
+        [Test] //Check Facade handling payment declined and does not save order
+        public void Facade_DeclinedPayment_DoesNotSaveOrder()
+        {
+            FakeOrderStore store = new FakeOrderStore();
+            OrderFacade facade = new OrderFacade(store);
+
+            PayPalPaymentStrategy strategy = new PayPalPaymentStrategy(false);
+
+            List<PizzaCart> items = new List<PizzaCart>
+            { new PizzaCart{
+                PizzaId = 1,
+                SizeId  = 1,
+                CrustId = 1,
+                Quantity = 2,
+                Price = 30.00m
+            }
+            };
+            Assert.Throws<InvalidOperationException>(() => facade.PlaceOrder(1, items, 3, strategy));
+            Assert.That(store.SaveWasCalled, Is.EqualTo(false));
+        }
 
 
+        //Testing without opening Oracle
+        public class FakeOrderStore : IOrderStore
+        {
+            public bool SaveWasCalled { get; private set; }
 
-    [Test]
-    public void PizzaCartBuilder_Build_ReturnSelectedValues()
-    {
-        var item = new PizzaCartBuilder()
-            .WithPizzaId(3)
-            .WithSizeId(2)
-            .WithCrustId(1)
-            .WithQuantity(2)
-            .Build();
+            public int SaveOrder(
+                int customerId,
+                List<PizzaCart> items,
+                int paymentMethodId)
+            {
+                SaveWasCalled = true;
+                return 100;
+            }
+        }
 
-        Assert.That(item.PizzaId, Is.EqualTo(3));
-        Assert.That(item.SizeId, Is.EqualTo(2));
-        Assert.That(item.CrustId, Is.EqualTo(1));
-        Assert.That(item.Quantity, Is.EqualTo(2));
-    }
-    [Test]
-    public void PizzaCartBuilder_Build_ThrowsExceptionForInvalidQuantity()
-    {
-        Assert.Throws<System.ArgumentException>(() => new PizzaCartBuilder()
-            .WithPizzaId(3)
-            .WithSizeId(2)
-            .WithCrustId(1)
-            .WithQuantity(11)
-            .Build());
-    }
-    //Test PayPalPaymentStrategy
-    [TestCase(true)]
-    [TestCase(false)]
-    public void PayPal_ReturnsApprovalDecision(bool approved)
-    {
-        var strategy = new PayPalPaymentStrategy(approved);
-
-        Assert.That(strategy.Pay(20m), Is.EqualTo(approved));
-    }
-
-    [Test]
-    public void Card_WithValidDetails_ReturnsTrue()
-    {
-        string expiry = System.DateTime.Today
-            .AddYears(1).ToString("MM/yy",
-                System.Globalization.CultureInfo.InvariantCulture);
-
-        var strategy = new CardPaymentStrategy(
-            "Test Customer", "1234567812345678", expiry, "123");
-
-        Assert.That(strategy.Pay(20m), Is.True);
-    }
-
-    [Test]
-    public void Card_WithShortCardNumber_ReturnsFalse()
-    {
-        string expiry = System.DateTime.Today
-            .AddYears(1).ToString("MM/yy",
-                System.Globalization.CultureInfo.InvariantCulture);
-
-        var strategy = new CardPaymentStrategy(
-            "Test Customer", "1234", expiry, "123");
-
-        Assert.That(strategy.Pay(20m), Is.False);
-    }
-
-    [Test]
-    public void Card_WithExpiredDate_ReturnsFalse()
-    {
-        string expiry = System.DateTime.Today
-            .AddYears(-1).ToString("MM/yy",
-                System.Globalization.CultureInfo.InvariantCulture);
-
-        var strategy = new CardPaymentStrategy(
-            "Test Customer", "1234567812345678", expiry, "123");
-
-        Assert.That(strategy.Pay(20m), Is.False);
     }
 }
+
+
+

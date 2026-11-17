@@ -26,6 +26,12 @@ class frmPlaceOrder {
 }
 
 class Pizza {
+    - pizza_id : int
+    - pizza_name : string
+    -string pizza_description : string
+    - category_id : int
+    -decimal pizza_price : decimal
+
     + getAllPizza()
 }
 
@@ -80,7 +86,21 @@ class OrderDetails {
 }
 
 class CustomerOrders {
+    - order_id : int
+    - order_date : DateTime
+    - total_price : decimal
+    - customer_id : int
+    - order_status : char
+    - order_status_desc : string
+
     + getOrderIdByCustomerId(customerId : string) : int
+}
+class frmPayment {
+    - currentCustomerId : int
+    - currentOrderId : int
+    - totalPrice : decimal
+    + frmPayment(currentCustomerId : int, currentOrderId : int, totalPrice : decimal)
+    - btnPay_Click()
 }
 
 class frmPayment

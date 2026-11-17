@@ -12,3 +12,5 @@ namespace FoodDeliverySYS.Business
         bool Pay(decimal amount);
     }
 }
+
+

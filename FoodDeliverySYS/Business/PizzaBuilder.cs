@@ -2,32 +2,32 @@
 
 namespace FoodDeliverySYS.Business
 { 
-    public class PizzaCartBuilder
+    public class PizzaBuilder
     {
         private int pizzaId;
         private int sizeId;
         private int crustId;
         private int quantity;
 
-        public PizzaCartBuilder WithPizzaId(int Id)
+        public PizzaBuilder WithPizzaId(int Id)
         {
             pizzaId = Id;
             return this;
         }
 
-        public PizzaCartBuilder WithSizeId(int Id)
+        public PizzaBuilder WithSizeId(int Id)
         {
             sizeId = Id;
             return this;
         }
 
-        public PizzaCartBuilder WithCrustId(int Id)
+        public PizzaBuilder WithCrustId(int Id)
         {
             crustId = Id;
             return this;
         }
 
-        public PizzaCartBuilder WithQuantity(int value)
+        public PizzaBuilder WithQuantity(int value)
         {
             quantity = value;
             return this;
@@ -46,6 +46,11 @@ namespace FoodDeliverySYS.Business
                 CrustId = crustId,
                 Quantity = quantity
             };
+        }
+
+        internal object SetName(string v)
+        {
+            throw new NotImplementedException();
         }
     }
 }

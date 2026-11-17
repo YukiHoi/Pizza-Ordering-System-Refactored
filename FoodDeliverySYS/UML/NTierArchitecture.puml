@@ -1,0 +1,19 @@
+﻿@startuml
+top to bottom direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+rectangle "Presentation Layer\n\nfrmPlaceOrder\nfrmPayment\nfrmDispatchOrder\nfrmCloseDelivery" as UI
+
+rectangle "Business Layer\n\nPizzaBuilder\nPriceCalculator\nOrderFacade\nPayment Strategies\n\nIOrderStore / IDeliveryStore" as Business
+
+rectangle "Data Access Layer\n\nOracleOrderStore\nOracleDeliveryStore" as Data
+
+database "Oracle Database" as DB
+
+UI -down-> Business : uses business operations
+Business -down-> Data : saving through interfaces
+UI -right-> Data : delivery calls through IDeliveryStore
+Data -down-> DB : executes SQL
+
+@enduml

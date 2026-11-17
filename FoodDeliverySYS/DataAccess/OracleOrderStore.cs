@@ -1,137 +1,149 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FoodDeliverySYS.Business;
 using Oracle.ManagedDataAccess.Client;
 
 namespace FoodDeliverySYS.DataAccess
 {
     public class OracleOrderStore : IOrderStore
-    {
+    {    
         public int SaveOrder(
             int customerId,
-            IReadOnlyList<PizzaCart> items,
+            List<PizzaCart> items,
             int paymentMethodId)
         {
-            if (customerId <= 0 || paymentMethodId <= 0)
-                throw new ArgumentException(
-                    "A customer and payment method are required.");
-
-            if (items == null || items.Count == 0)
-                throw new ArgumentException("The cart is empty.");
-
             decimal total = items.Sum(item => item.Price);
 
-            using (var connection =
-                new OracleConnection(DBConnect.oraDB))
+            OracleConnection conn =
+                new OracleConnection(DBConnect.oraDB);
+
+            conn.Open();
+
+            // Create and save the order.
+            String sqlQuery =
+                "SELECT CUSTOMER_ORDER_SEQ.NEXTVAL FROM dual";
+
+            int orderId = getNextId(conn, sqlQuery);
+
+            CustomerOrders order = new CustomerOrders(
+                orderId,
+                DateTime.Now,
+                total,
+                customerId,
+                'Y',
+                "Processing");
+
+            addCustomerOrder(conn, order);
+
+            // Save each pizza item.
+            foreach (PizzaCart item in items)
             {
-                connection.Open();
+                sqlQuery =
+                    "SELECT ORDER_DETAIL_SEQ.NEXTVAL FROM dual";
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    try
-                    {
-                        int orderId = GetNextId(
-                            connection, transaction,
-                            "SELECT CUSTOMER_ORDER_SEQ.NEXTVAL FROM dual");
+                int detailId = getNextId(conn, sqlQuery);
 
-                        // Save one order for the complete cart.
-                        Execute(connection, transaction,
-                            @"INSERT INTO CustomerOrders
-                              (order_id, order_date, total_price,
-                               customer_id, payment_status, order_status)
-                              VALUES
-                              (:orderId, :orderDate, :total,
-                               :customerId, 'Y', 'Processing')",
-                            new OracleParameter("orderId", orderId),
-                            new OracleParameter("orderDate", OracleDbType.Date)
-                            {
-                                Value = DateTime.Now
-                            },
-                            new OracleParameter("total", total),
-                            new OracleParameter("customerId", customerId));
-
-                        // Save each cart item under the same order.
-                        foreach (PizzaCart item in items)
-                        {
-                            int detailId = GetNextId(
-                                connection, transaction,
-                                "SELECT ORDER_DETAIL_SEQ.NEXTVAL FROM dual");
-
-                            Execute(connection, transaction,
-                                @"INSERT INTO OrderDetails
-                                  (order_detail_id, order_id, pizza_id,
-                                   crust_id, size_id, quantity,
-                                   line_total_price)
-                                  VALUES
-                                  (:detailId, :orderId, :pizzaId,
-                                   :crustId, :sizeId, :quantity,
-                                   :lineTotal)",
-                                new OracleParameter("detailId", detailId),
-                                new OracleParameter("orderId", orderId),
-                                new OracleParameter("pizzaId", item.PizzaId),
-                                new OracleParameter("crustId", item.CrustId),
-                                new OracleParameter("sizeId", item.SizeId),
-                                new OracleParameter("quantity", item.Quantity),
-                                new OracleParameter("lineTotal", item.Price));
-                        }
-
-                        int paymentId = GetNextId(
-                            connection, transaction,
-                            "SELECT PAYMENT_SEQ.NEXTVAL FROM dual");
-
-                        // Record one simulated payment for the order.
-                        Execute(connection, transaction,
-                            @"INSERT INTO Payment
-                              (payment_id, order_id,
-                               payment_amount, payment_method_id)
-                              VALUES
-                              (:paymentId, :orderId,
-                               :amount, :methodId)",
-                            new OracleParameter("paymentId", paymentId),
-                            new OracleParameter("orderId", orderId),
-                            new OracleParameter("amount", total),
-                            new OracleParameter("methodId", paymentMethodId));
-
-                        // Keep all records only when every insert succeeds.
-                        transaction.Commit();
-                        return orderId;
-                    }
-                    catch
-                    {
-                        // Cancel the inserts if any part fails.
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
+                addOrderDetails(conn, detailId, orderId, item);
             }
+
+            // Save the payment.
+            sqlQuery =
+                "SELECT PAYMENT_SEQ.NEXTVAL FROM dual";
+
+            int paymentId = getNextId(conn, sqlQuery);
+
+            addPayment(
+                conn, paymentId, orderId, total, paymentMethodId);
+
+            conn.Close();
+            conn.Dispose();
+
+            return orderId;
         }
-        private static int GetNextId(
-            OracleConnection connection,
-            OracleTransaction transaction,
-            string sql)
+
+        private void addCustomerOrder(
+            OracleConnection conn,
+            CustomerOrders order)
         {
-            using (var command = new OracleCommand(sql, connection))
-            {
-                command.Transaction = transaction;
-                return Convert.ToInt32(command.ExecuteScalar());
-            }
+            String sqlQuery =
+                "INSERT INTO CustomerOrders " +
+                "(order_id, order_date, total_price, customer_id, " +
+                "payment_status, order_status) VALUES (" +
+                order.getOrder_id() + ", " +
+                "TO_DATE('" +
+                order.getOrder_date().ToString("yyyy-MM-dd") +
+                "', 'YYYY-MM-DD'), " +
+                order.getTotal_price().ToString(
+                    CultureInfo.InvariantCulture) + ", " +
+                order.getCustomer_id() + ", '" +
+                order.getPayment_status() + "', '" +
+                order.getOrder_status() + "')";
+
+            OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+
+            cmd.ExecuteNonQuery();
+            cmd.Dispose();
         }
-        private static void Execute(
-            OracleConnection connection,
-            OracleTransaction transaction,
-            string sql,
-            params OracleParameter[] parameters)
+
+        private void addOrderDetails(
+            OracleConnection conn,
+            int detailId,
+            int orderId,
+            PizzaCart item)
         {
-            using (var command = new OracleCommand(sql, connection))
-            {
-                command.Transaction = transaction;
-                command.BindByName = true;
-                command.Parameters.AddRange(parameters);
-                command.ExecuteNonQuery();
-            }
+            String sqlQuery =
+                "INSERT INTO OrderDetails " +
+                "(order_detail_id, order_id, pizza_id, crust_id, " +
+                "size_id, quantity, line_total_price) VALUES (" +
+                detailId + ", " +
+                orderId + ", " +
+                item.PizzaId + ", " +
+                item.CrustId + ", " +
+                item.SizeId + ", " +
+                item.Quantity + ", " +
+                item.Price.ToString(CultureInfo.InvariantCulture) + ")";
+
+            OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+
+            cmd.ExecuteNonQuery();
+            cmd.Dispose();
+        }
+
+        private void addPayment(
+            OracleConnection conn,
+            int paymentId,
+            int orderId,
+            decimal total,
+            int paymentMethodId)
+        {
+            String sqlQuery =
+                "INSERT INTO Payment " +
+                "(payment_id, order_id, payment_amount, " +
+                "payment_method_id) VALUES (" +
+                paymentId + ", " +
+                orderId + ", " +
+                total.ToString(CultureInfo.InvariantCulture) + ", " +
+                paymentMethodId + ")";
+
+            OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+
+            cmd.ExecuteNonQuery();
+            cmd.Dispose();
+        }
+
+        private int getNextId(
+            OracleConnection conn,
+            String sqlQuery)
+        {
+            OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+
+            int nextId = Convert.ToInt32(cmd.ExecuteScalar());
+
+            cmd.Dispose();
+
+            return nextId;
         }
     }
 }

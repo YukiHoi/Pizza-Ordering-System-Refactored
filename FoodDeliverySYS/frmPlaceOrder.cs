@@ -15,7 +15,7 @@ namespace FoodDeliverySYS
 {
     public partial class frmPlaceOrder : Form
     {
-        private List<PizzaCart> cart = new List<PizzaCart>(); //create a list of pizza cart
+        private List<PizzaCart> cart = new List<PizzaCart>(); 
         private int currentCustomerId;
         private int currentOrderID;
         private int currentOrderDetailId;
@@ -77,20 +77,19 @@ namespace FoodDeliverySYS
             try
             {
                 // Builder creates and validates one pizza item.
-                PizzaCart item = new PizzaCartBuilder()
+                PizzaCart item = new PizzaBuilder()
                     .WithPizzaId(int.Parse(pizzaParts[0]))
                     .WithCrustId(int.Parse(crustParts[0]))
                     .WithSizeId(int.Parse(sizeParts[0]))
                     .WithQuantity(Convert.ToInt32(numQty.Value))
                     .Build();
-                // Pricing remains separate from item creation.
+ 
                 item.Price = PriceCalculator.CalculatePrice(
                     decimal.Parse(pizzaParts[pizzaParts.Length - 1]),
                     decimal.Parse(crustParts[crustParts.Length - 1]),
                     decimal.Parse(sizeParts[sizeParts.Length - 1]),
                     item.Quantity);
                 
-                // Keep the existing checkout parameters for this step.
                 pizza_id = item.PizzaId;
                 crust_id = item.CrustId;
                 size_id = item.SizeId;
@@ -98,7 +97,6 @@ namespace FoodDeliverySYS
                 totalPrice = item.Price;
                 cart.Add(item);
 
-                //Refresh the grid after adding an item and display pizza
                 dgvCartList.DataSource = null;
                 dgvCartList.DataSource = cart.Select(cartItem => new
                 {

@@ -102,13 +102,12 @@
   <ItemGroup>
     <Compile Include="Business\ApplePayPaymentStrategy.cs" />
     <Compile Include="Business\CardPaymentStrategy.cs" />
-    <Compile Include="Business\DeliveryService.cs" />
     <Compile Include="Business\IDeliveryStore.cs" />
     <Compile Include="Business\IOrderStore.cs" />
     <Compile Include="Business\IPaymentStrategy.cs" />
     <Compile Include="Business\OrderFacade.cs" />
     <Compile Include="Business\PayPalPaymentStrategy.cs" />
-    <Compile Include="Business\PizzaCartBuilder.cs" />
+    <Compile Include="Business\PizzaBuilder.cs" />
     <Compile Include="Category.cs" />
     <Compile Include="CrustType.cs" />
     <Compile Include="Customer.cs" />
@@ -324,6 +323,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="UML\Fadace.puml" />
+    <None Include="UML\Strategy.puml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -410,12 +411,12 @@
     <None Include="Resources\background1.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LayeredArchitecture.puml" />
-    <Content Include="new.puml" />
-    <Content Include="NTierArchitecture.puml">
+    <Content Include="UML\LayeredArchitecture.puml" />
+    <Content Include="UML\Builder.puml" />
+    <Content Include="UML\NTierArchitecture.puml">
       <DependentUpon>LayeredArchitecture.puml</DependentUpon>
     </Content>
-    <Content Include="UML.puml" />
+    <Content Include="UML\Original.puml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

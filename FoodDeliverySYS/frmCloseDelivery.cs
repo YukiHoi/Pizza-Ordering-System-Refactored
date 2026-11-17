@@ -14,7 +14,7 @@ namespace FoodDeliverySYS
 {
     public partial class frmCloseDelivery : Form
     {
-        private readonly DeliveryService deliveryService = new DeliveryService(new OracleDeliveryStore());
+        private readonly IDeliveryStore deliveryStore = new OracleDeliveryStore();
 
         Delivery theDelivery = new Delivery();
         CustomerOrders theOrder = new CustomerOrders();
@@ -47,7 +47,7 @@ namespace FoodDeliverySYS
             try
             {
                 // Ask the Business layer to complete the delivery.
-                deliveryService.CloseDelivery(orderId);
+                deliveryStore.CloseDelivery(orderId);
             }
             catch (Exception ex)
             {

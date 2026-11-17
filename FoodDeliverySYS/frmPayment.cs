@@ -145,7 +145,6 @@ namespace FoodDeliverySYS
             {
                 var facade = new OrderFacade(new OracleOrderStore());
 
-                // The Façade processes payment and then saves the order.
                 savedOrderId = facade.PlaceOrder(
                     currentCustomerId,
                     cartItems,

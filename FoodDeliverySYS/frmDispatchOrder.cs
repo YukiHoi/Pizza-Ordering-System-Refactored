@@ -15,8 +15,7 @@ namespace FoodDeliverySYS
 {
     public partial class frmDispatchOrder : Form
     {
-        private readonly DeliveryService deliveryService = new DeliveryService(new OracleDeliveryStore());
-
+        private readonly IDeliveryStore deliveryStore = new OracleDeliveryStore();
         Delivery theDelivery = new Delivery();
         Staff theStaff = new Staff();
         CustomerOrders theOrder = new CustomerOrders();
@@ -45,7 +44,7 @@ namespace FoodDeliverySYS
             try
             {
                 // Pass the selected delivery details to the Business layer.
-                deliveryService.DispatchOrder(
+                deliveryStore.DispatchOrder(
                     Convert.ToInt32(txtDeliveryId.Text),
                     Convert.ToInt32(cboOrderId.SelectedItem.ToString()),
                     staffId,

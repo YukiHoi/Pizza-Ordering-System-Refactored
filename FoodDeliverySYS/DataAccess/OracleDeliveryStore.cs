@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FoodDeliverySYS.Business;
 using Oracle.ManagedDataAccess.Client;
 
@@ -14,88 +10,84 @@ namespace FoodDeliverySYS.DataAccess
             int deliveryId, int orderId,
             int staffId, DateTime deliveryDate)
         {
-            using (var connection = new OracleConnection(DBConnect.oraDB))
-            {
-                connection.Open();
+            OracleConnection conn =
+                new OracleConnection(DBConnect.oraDB);
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    try
-                    {
-                        // Update only a processing order.
-                        int updated = Execute(connection, transaction,
-                            @"UPDATE CustomerOrders
-                              SET order_status = 'Dispatched'
-                              WHERE order_id = :orderId
-                              AND order_status = 'Processing'",
-                            new OracleParameter("orderId", orderId));
+            conn.Open();
 
-                        if (updated != 1)
-                            throw new InvalidOperationException(
-                                "The order is not available for dispatch.");
+            addDelivery(
+                conn, deliveryId, deliveryDate, staffId, orderId);
 
-                        // Save the driver assignment in the same transaction.
-                        Execute(connection, transaction,
-                            @"INSERT INTO Delivery
-                              (delivery_id, delivery_date, staff_id, order_id)
-                              VALUES (:id, :deliveryDate, :staffId, :orderId)",
-                            new OracleParameter("id", deliveryId),
-                            new OracleParameter("deliveryDate", OracleDbType.Date)
-                            {
-                                Value = deliveryDate
-                            },
-                            new OracleParameter("staffId", staffId),
-                            new OracleParameter("orderId", orderId));
+            updateOrderStatusToDispatched(conn, orderId);
 
-                        transaction.Commit();
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
-            }
+            conn.Close();
+        }
+
+        private void addDelivery(
+            OracleConnection conn,
+            int delivery_id,
+            DateTime delivery_date,
+            int staff_id,
+            int order_id)
+        {
+            String sqlQuery =
+                "INSERT INTO Delivery " +
+                "(delivery_id, delivery_date, staff_id, order_id) " +
+                "VALUES (:deliveryId, :deliveryDate, :staffId, :orderId)";
+
+            OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+            cmd.BindByName = true;
+
+            cmd.Parameters.Add(
+                new OracleParameter("deliveryId", delivery_id));
+
+            OracleParameter dateParameter =
+                new OracleParameter("deliveryDate", OracleDbType.Date);
+            dateParameter.Value = delivery_date;
+            cmd.Parameters.Add(dateParameter);
+
+            cmd.Parameters.Add(
+                new OracleParameter("staffId", staff_id));
+
+            cmd.Parameters.Add(
+                new OracleParameter("orderId", order_id));
+
+            conn.Close();
+        }
+
+        private void updateOrderStatusToDispatched(
+            OracleConnection conn, int order_id)
+        {
+            String sqlQuery = "UPDATE CustomerOrders " +
+                              "SET order_status = 'Dispatched' " +
+                              "WHERE order_id = :orderId";
+
+            OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+            cmd.BindByName = true;
+
+            cmd.Parameters.Add(
+                new OracleParameter("orderId", order_id));
+
+            conn.Close();
         }
 
         public void CloseDelivery(int orderId)
         {
-            using (var connection = new OracleConnection(DBConnect.oraDB))
-            {
-                connection.Open();
+            OracleConnection conn =
+                new OracleConnection(DBConnect.oraDB);
 
-                int updated = Execute(connection, null,
-                    @"UPDATE CustomerOrders
-                      SET order_status = 'Delivered'
-                      WHERE order_id = :orderId
-                      AND order_status = 'Dispatched'",
-                    new OracleParameter("orderId", orderId));
+            String sqlQuery = "UPDATE CustomerOrders " +
+                              "SET order_status = 'Delivered' " +
+                              "WHERE order_id = :orderId";
 
-                if (updated != 1)
-                    throw new InvalidOperationException(
-                        "Only a dispatched order can be marked as delivered.");
-            }
-        }
+            OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+            cmd.BindByName = true;
 
-        // Set up and run a database command.
-        private static int Execute(
-            OracleConnection connection,
-            OracleTransaction transaction,
-            string sql,
-            params OracleParameter[] parameters)
-        {
-            using (var command = new OracleCommand(sql, connection))
-            {
-                if (transaction != null)
-                    command.Transaction = transaction;
+            cmd.Parameters.Add(
+                new OracleParameter("orderId", orderId));
 
-                command.BindByName = true;
-                command.Parameters.AddRange(parameters);
-                return command.ExecuteNonQuery();
-            }
+            conn.Open();
+            conn.Close();
         }
     }
 }
-
-  
-

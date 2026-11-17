@@ -1,0 +1,37 @@
+@startuml
+top to bottom direction
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+class frmPayment {
+    +btnConfirmPayment_Click()
+}
+
+class OrderFacade {
+    +PlaceOrder() : int
+}
+
+interface IPaymentStrategy {
+    +Pay(amount : decimal) : bool
+}
+
+class CardPaymentStrategy {
+    +Pay(amount : decimal) : bool
+}
+
+class ApplePayPaymentStrategy {
+    +Pay(amount : decimal) : bool
+}
+
+class PayPalPaymentStrategy {
+    +Pay(amount : decimal) : bool
+}
+
+frmPayment ..> OrderFacade : passes selected strategy
+OrderFacade ..> IPaymentStrategy : calls Pay
+
+CardPaymentStrategy ..|> IPaymentStrategy
+ApplePayPaymentStrategy ..|> IPaymentStrategy
+PayPalPaymentStrategy ..|> IPaymentStrategy
+
+@enduml

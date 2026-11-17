@@ -40,7 +40,6 @@ namespace FoodDeliverySYS.Business
                 !cvv.All(char.IsDigit))
                 return false;
 
-            // Read the expiry date in MM/yy format.
             DateTime expiryDate;
             if (!DateTime.TryParseExact(
                     expiry, "MM/yy",
@@ -48,7 +47,6 @@ namespace FoodDeliverySYS.Business
                     DateTimeStyles.None, out expiryDate))
                 return false;
 
-            // A card remains valid throughout its expiry month.
             DateTime currentMonth =
                 new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
 
