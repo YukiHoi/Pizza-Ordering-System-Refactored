@@ -6,7 +6,7 @@ namespace FoodDeliverySYS.Tests
 {
     public class Tests
     {
-     
+
         [Test]    //check calculate total price
         public void TestCalculateTotalPrice()
         {
@@ -14,7 +14,7 @@ namespace FoodDeliverySYS.Tests
 
             Assert.That(actual, Is.EqualTo(32.98m));
         }
-       
+
         [Test]  //check that builder keep value
         public void BuilderKeepsValue()
         {
@@ -30,7 +30,7 @@ namespace FoodDeliverySYS.Tests
             Assert.That(item.SizeId, Is.EqualTo(3));
             Assert.That(item.Quantity, Is.EqualTo(4));
         }
-        
+
         [Test] //Test mixmum quantity
         public void Builder_RejectQuantityAboveTen() {
 
@@ -78,7 +78,47 @@ namespace FoodDeliverySYS.Tests
             Assert.Throws<InvalidOperationException>(() => facade.PlaceOrder(1, items, 3, strategy));
             Assert.That(store.SaveWasCalled, Is.EqualTo(false));
         }
+        [Test]///Check that quantity zero is rejected
+        public void Builder_RejectQuantityZero()
+        {
+            PizzaBuilder builder = new PizzaBuilder()
+                .WithPizzaId(1)
+                .WithCrustId(2)
+                .WithSizeId(3)
+                .WithQuantity(0);
+            Assert.Throws<ArgumentException>(() => builder.Build());
+        }
+        [Test] //checked both allowed quantity boundaries
+        public void Builder_AllowQuantityOneAndTen()
+        {
+            PizzaBuilder builder1 = new PizzaBuilder()
+                .WithPizzaId(1)
+                .WithCrustId(2)
+                .WithSizeId(3)
+                .WithQuantity(1);
+            PizzaCart item1 = builder1.Build();
+            Assert.That(item1.Quantity, Is.EqualTo(1));
+            PizzaBuilder builder10 = new PizzaBuilder()
+                .WithPizzaId(1)
+                .WithCrustId(2)
+                .WithSizeId(3)
+                .WithQuantity(10);
+            PizzaCart item10 = builder10.Build();
+            Assert.That(item10.Quantity, Is.EqualTo(10));
+        }
+        [Test] //Check valid simulated card details
+        public void CardPayment_ApproveValidDetails()
+        {
+            string expiry = DateTime.Today.AddYears(1).ToString(
+                "MM/yy", System.Globalization.CultureInfo.InvariantCulture);
 
+            CardPaymentStrategy strategy = new CardPaymentStrategy(
+                "Test Customer", "1234567812345678", expiry, "222");
+
+            bool approved = strategy.Pay(30.00m);
+
+            Assert.That(approved, Is.True);
+        }
 
         //Testing without opening Oracle
         public class FakeOrderStore : IOrderStore
